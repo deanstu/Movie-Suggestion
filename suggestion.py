@@ -8,10 +8,6 @@ from curl_cffi import requests
 import math
 from bs4 import BeautifulSoup
 from time import time,sleep
-#import argparse #might want to use later if needed complexity increases
-
-testurl = 'https://letterboxd.com/emilykaloudis/watchlist/'
-testuser = 'emilykaloudis'
 
 # ------------------------------------------------------------
 # this will be sent with the request to letterboxd.com to make it look like a real user is making the request, otherwise letterboxd will block the request
@@ -27,9 +23,12 @@ global RETURN_STATUS_CODES # This global is used as a flag to determine if the s
 global PRINT_INFORMATIONAL # This global is used as a flag to determine if the script should print informational messages to the console.
 global USE_TEST_WATCHLIST # This global is used as a flag to determine if the script should use the test watchlist or the users.txt file to get the list of users.
 
-RETURN_STATUS_CODES = True
+# In production, these should be set to False, but for testing purposes, they can be set to True. 
+# When USE_TEST_WATCHLIST is set to True, 
+# the script can be tested without having to make requests to letterboxd.com.
+RETURN_STATUS_CODES = False
 PRINT_INFORMATIONAL = False
-USE_TEST_WATCHLIST = True
+USE_TEST_WATCHLIST = False
 # ------------------------------------------------------------
 
 def getUsernamesFromFile():
@@ -116,15 +115,19 @@ def main(username="", numSuggestions=1):
         userWatchlists = {'deanonfilm': ['Goldfinger (1964)', 'From Russia with Love (1963)', 'Dr. No (1962)', 'Coyote vs. Acme (2026)'], 'emilykaloudis': ['The Big Sick (2017)', 'Thelma (2024)', 'Reservoir Dogs (1992)', 'The Irishman (2019)', 'Taxi Driver (1976)', 'Blade (1998)', 'Bullet Train (2022)', 'Ferrari (2023)', 'The Virgin Suicides (1999)', "One Flew Over the Cuckoo's Nest (1975)", 'A Clockwork Orange (1971)', 'Waiting... (2005)', 'Midsommar (2019)', 'Fresh (2022)', "Bill & Ted's Bogus Journey (1991)", 'Bill & Ted Face the Music (2020)', 'The Good Nurse (2022)', 'My Policeman (2022)', 'Fall (2022)', 'Hook (1991)', 'Robots (2005)', "Molly's Game (2017)", '127 Hours (2010)', 'Passengers (2016)', 'My Own Private Idaho (1991)', 'Loving Vincent (2017)', 'Chernobyl (2019)', 'CODA (2021)', 'Trainspotting (1996)', 'Aftersun (2022)', 'Atomic Blonde (2017)', 'Lucy (2014)', 'Ant-Man and the Wasp: Quantumania (2023)', 'Top Gun (1986)', 'The Marvels (2023)', 'Oppenheimer (2023)']}
     print(getRandomMovie(userWatchlists, username, numSuggestions))
 
-print("Running test cases for suggestion.py\n================================================\n")
-print("Test case 1: Get a random movie from all users' watchlists")
-main()
-print("------------------------------------------------")
-print("\nTest case 2: Get a random movie from a specific user's watchlist")
-main("emilykaloudis")
-print("------------------------------------------------")
-print("\nTest case 3: Get 3 random movies from all users' watchlists")
-main("", 3)
-print("------------------------------------------------")
-print("\nTest case 4: Get 3 random movies from a specific user's watchlist")
-main("emilykaloudis", 3)
+def test_cases():
+    print("Running test cases for suggestion.py\n================================================\n")
+    print("Test case 1: Get a random movie from all users' watchlists")
+    main()
+    print("------------------------------------------------")
+    print("\nTest case 2: Get a random movie from a specific user's watchlist")
+    main("emilykaloudis")
+    print("------------------------------------------------")
+    print("\nTest case 3: Get 3 random movies from all users' watchlists")
+    main("", 3)
+    print("------------------------------------------------")
+    print("\nTest case 4: Get 3 random movies from a specific user's watchlist")
+    main("emilykaloudis", 3)
+
+test_cases()
+
