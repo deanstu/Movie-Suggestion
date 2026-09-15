@@ -19,6 +19,7 @@ headers = {
     "Referer": "https://google.com" # Tells the site you found them via Google
 }
 
+
 global RETURN_STATUS_CODES # This global is used as a flag to determine if the script should return the status codes of the requests made to letterboxd.com.
 global PRINT_INFORMATIONAL # This global is used as a flag to determine if the script should print informational messages to the console.
 global USE_TEST_WATCHLIST # This global is used as a flag to determine if the script should use the test watchlist or the users.txt file to get the list of users.
@@ -28,7 +29,7 @@ global USE_TEST_WATCHLIST # This global is used as a flag to determine if the sc
 # the script can be tested without having to make requests to letterboxd.com.
 RETURN_STATUS_CODES = False
 PRINT_INFORMATIONAL = False
-USE_TEST_WATCHLIST = False
+USE_TEST_WATCHLIST = True
 # ------------------------------------------------------------
 
 def getUsernamesFromFile():
@@ -41,6 +42,9 @@ def getWatchlistUrls(user):
     baseUrl = f'https://letterboxd.com/{user}/watchlist/'
     
     html = requests.get(baseUrl, headers=headers, impersonate="chrome120")
+    if html.status_code != 200:
+        if PRINT_INFORMATIONAL: print(f"Error getting watchlist for user {user}. Status code: {html.status_code}")
+        return []
     if RETURN_STATUS_CODES: print(html.status_code)
     html = html.text
 
@@ -66,6 +70,9 @@ def getWatchlistMovies(url):
     if PRINT_INFORMATIONAL: print(f"Getting movies from {url}")
     html = requests.get(url, headers=headers, impersonate="chrome120")
     if RETURN_STATUS_CODES: print(html.status_code)
+    if html.status_code != 200:
+        if PRINT_INFORMATIONAL: print(f"Error getting movies from {url}. Status code: {html.status_code}")
+        return []
     soup = BeautifulSoup(html.text, 'html.parser').find_all(attrs={"data-component-class": "LazyPoster"})
     movies = []
 
@@ -87,17 +94,22 @@ def getRandomMovie(movies, username, numSuggestions):
         movieList = []
         for userList in movies.values():
             movieList.extend(userList)
-        for i in range(numSuggestions):
-            randomMovie = movieList[math.floor(time() * 1000) % len(movieList)] # get a random movie from the list of movies
-            sleep(1) # sleep for 1 second to avoid getting the same movie multiple times in a row
-            returnText= returnText + f"Suggestion {i+1}: {randomMovie}\n"
+        for i in range(numSuggestions if numSuggestions <= len(movieList) else len(movieList)):
+            movie=math.floor(time() * 1000) % len(movieList) # get a random movie from the list of movies
+            returnText= returnText + f"Suggestion {i+1}: {movieList[movie]}\n" 
+            movieList.pop(movie) # remove the movie from the list so it doesn't get suggested again
+            
+            
         return returnText
 
     else:
-        for i in range(numSuggestions):
-            randomMovie = movies[username][math.floor(time() * 1000) % len(movies[username])] # get a random movie from the list of movies for the specified user
-            sleep(1) # sleep for 1 second to avoid getting the same movie multiple times in a row
-            returnText+= f"Suggestion {i+1}: {randomMovie}\n"
+        if username not in movies:
+            if PRINT_INFORMATIONAL: print(f"User {username} not found in the watchlists.")
+            return None
+        for i in range(numSuggestions if numSuggestions <= len(movies[username]) else len(movies[username])):
+            movie=math.floor(time() * 1000) % len(movies[username]) # get a random movie from the list of movies for the specified user
+            returnText+= f"Suggestion {i+1}: {movies[username][movie]}\n"
+            movies[username].pop(movie) # remove the movie from the list so it doesn't get suggested again
         return returnText
 
 def main(username="", numSuggestions=1):
@@ -128,6 +140,12 @@ def test_cases():
     print("------------------------------------------------")
     print("\nTest case 4: Get 3 random movies from a specific user's watchlist")
     main("emilykaloudis", 3)
+    print("------------------------------------------------")
+    print("\nTest case 5: Get a random movie from a user with no watchlist")
+    main("userwithnowatchlist")
+    print("------------------------------------------------")
+    print("\nTest case 6: Get a random movie from a user with a watchlist that has less than the requested number of suggestions")
+    main("deanonfilm", 100)
 
 test_cases()
 
