@@ -29,13 +29,18 @@ global USE_TEST_WATCHLIST # This global is used as a flag to determine if the sc
 # the script can be tested without having to make requests to letterboxd.com.
 RETURN_STATUS_CODES = False
 PRINT_INFORMATIONAL = False
-USE_TEST_WATCHLIST = True
+USE_TEST_WATCHLIST = False
 # ------------------------------------------------------------
 
 def getUsernamesFromFile():
 
     with open("users.txt", 'r') as f:
         return [line.strip() for line in f]
+
+def writeUsernamesToFile(usernames):
+    with open("users.txt", 'w') as f:
+        for username in usernames:
+            f.write("username\n")
 
 def getWatchlistUrls(user):
     
@@ -147,5 +152,7 @@ def test_cases():
     print("\nTest case 6: Get a random movie from a user with a watchlist that has less than the requested number of suggestions")
     main("deanonfilm", 100)
 
-test_cases()
+#test_cases()
+
+testUsernames = ["deanonfilm", "emilykaloudis", "jessetheeph"]
 
