@@ -117,8 +117,10 @@ def getWatchlistMovies(url):
         return []
     soup = BeautifulSoup(html.text, 'html.parser').find_all(attrs={"data-component-class": "LazyPoster"})
     movies = []
+    posters = []
 
     for movie in soup:
+        #get title
         varStart = str(movie).find('data-item-full-display-name')+29
         title = str(movie)[varStart:str(movie).find('"', varStart)].replace('&amp;', '&') # replace &amp; with & in the title
         movies.append(title)
