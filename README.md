@@ -9,6 +9,7 @@
 <ul>
   <li>[ ] Create GUI</li>
   <li>[ ] Username validation</li>
+  <li>[ ] Return movie poster</li>
   <li>[ ] Handle web errors</li>
   <li>[ ] Allow list imports from other sources (iMDB, etc)</li>
   <li>[ ] Further edge case testing</li>
